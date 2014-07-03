@@ -45,6 +45,18 @@ def load_current_resource
   cmd = shell_out("#{appcmd} list config /section:#{@new_resource.section}")
   Chef::Log.debug("#{@new_resource} list app command output: #{cmd.stdout}")
   
+  match_resource_keyvalue = /@current_resource.config_key.*@current_resource.config_value/
+  match_resource_attribute = /@current_resource.config_key.*@current_resource.config_value/
+  match_resource_keyenabled = /@current_resource.config_key.*@current_resource.enabled/
+  
+  if @current_resource.config_key && @current_resource.config_value
+    result = cmd.stdout.match(match_resource_keyvalue)
+  else if
+    result = cmd.stdout.match(match_resource_attribute)
+  else if
+    result = cmd.stdout.match(match_resource_keyenabled)
+  end
+  
   result = cmd.stdout.each_line do |line|
     if line.include? "#{@new_resource.config_key}"
       if line.include? "#{@new_resource.config_value}"
