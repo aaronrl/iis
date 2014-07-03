@@ -31,6 +31,36 @@ action :config do
   Chef::Log.info("IIS Config command run")
 end
 
+def load_current_resource
+  @current_resource = Chef::Resource::IisConfig.new(@new_resource.name)
+  @current_resource.site_name(@new_resource.site_name)
+  @current_resource.section(@new_resource.section)
+  @current_resource.config_key(@new_resource.config_key)
+  @current_resource.config_value(@new_resource.config_value)
+  @current_resource.is_attribute(@new_resource.is_attribute)
+  @current_resource.ensure(@new_resource.ensure)
+  @current_resource.commit(@new_resource.commit)
+  @current_resource.enabled(@new_resource.enabled)
+  
+  cmd = shell_out("#{appcmd} list config /section:#{@new_resource.section}")
+  Chef::Log.debug("#{@new_resource} list app command output: #{cmd.stdout}")
+  
+  result = cmd.stdout.each_line do |line|
+    if line.include? "#{@new_resource.config_key}"
+      if line.include? "#{@new_resource.config_value}"
+        true
+      end
+    end
+  end if cmd.stderr.empty?
+  Chef::Log.debug("#{@new_resource} current_resource match output:#{result}")
+  
+  if result
+    @current_resource.exists = true
+  else
+    @current_resource.exists = false
+  end
+end
+
 private
 def appcmd
   @appcmd ||= begin

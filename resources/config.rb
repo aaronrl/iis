@@ -21,6 +21,14 @@
 actions :config
 
 attribute :cfg_cmd, :kind_of => String, :name_attribute => true
+attribute :site_name, :kind_of => String
+attribute :section, :kind_of => String
+attribute :config_key, :kind_of => String
+attribute :config_value, :kind_of => String
+attribute :is_attribute, :kind_of => [TrueClass, FalseClass], :default => false
+attribute :ensure, :kind_of => String, :equal_to => ['Present', 'present', 'Absent', 'absent']
+attribute :commit, :kind_of => String
+attribute :enabled, :kind_of => [TrueClass, FalseClass], :default => true
 attribute :returns, :kind_of => [Integer, Array], :default => 0
 
 def initialize(*args)
