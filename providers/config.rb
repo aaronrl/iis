@@ -31,6 +31,24 @@ action :config do
   Chef::Log.info("IIS Config command run")
 end
 
+action :add do
+  if @current_resource.exists
+    Chef::Log.info("IIS configuration already exists")
+  else
+    Chef::Log.info("IIS configuration does not exist.  Adding...")
+    Chef::Log.debug(@current_resource)
+  end
+end
+
+action :remove do
+  if @current_resource.exists
+    Chef::Log.info("IIS configuration exists.  Removing...")
+    Chef::Log.debug(@current_resource)
+  else
+    Chef::Log.info("IIS configuration does not exist")
+  end
+end
+
 def load_current_resource
   @current_resource = Chef::Resource::IisConfig.new(@new_resource.name)
   @current_resource.site_name(@new_resource.site_name)
@@ -42,7 +60,7 @@ def load_current_resource
   @current_resource.commit(@new_resource.commit)
   @current_resource.enabled(@new_resource.enabled)
   
-  cmd = shell_out("#{appcmd} list config /section:#{@new_resource.section}")
+  cmd = shell_out("#{appcmd} list config #{site_name} /section:#{@new_resource.section}")
   Chef::Log.debug("#{@new_resource} list app command output: #{cmd.stdout}")
   
   match_resource_keyvalue = /@current_resource.config_key.*@current_resource.config_value/
@@ -78,4 +96,11 @@ def appcmd
   @appcmd ||= begin
     "#{node['iis']['home']}\\appcmd.exe"
   end
+end
+
+def config_exists?(config,
+	cmd = shell_out("#{appcmd} list config #{site_name} /section:#{@new_resource.section}")
+	Chef::Log.debug("#{@new_resource} list app command output: #{cmd.stdout}")
+	
+	
 end

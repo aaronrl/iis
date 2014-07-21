@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-actions :config
+actions :config, :add, :remove
 
 attribute :cfg_cmd, :kind_of => String, :name_attribute => true
 attribute :site_name, :kind_of => String
